@@ -3,20 +3,26 @@
 namespace App\Http\Livewire\Expense;
 
 use Livewire\Component;
-use App\Models\Expenses;
+use App\Models\Expense;
+use Illuminate\Support\Facades\Storage;
+use Livewire\WithFileUploads;
 
 class ExpenseEdit extends Component
 {
-    public Expenses $expense;
+    use WithFileUploads;
+
+    public Expense $expense;
 
     public $description;
     public $amount;
     public $type;
+    public $photo;
 
     protected $rules = [
         'amount' => 'required',
         'type' => 'required',
-        'description' => 'required'
+        'description' => 'required',
+        'photo' => 'image|nullable'
     ];
 
     public function mount(/* Expenses $expense */)
@@ -29,10 +35,20 @@ class ExpenseEdit extends Component
     public function updateExpense()
     {
         $this->validate();
+
+        if ($this->photo) {
+            if (Storage::disk('public')->exists($this->expense->photo)) {
+                Storage::disk('public')->delete($this->expense->photo);
+            }
+
+            $this->photo = $this->photo->store('expenses-photos', 'public');
+        }
+
         $this->expense->update([
             'description' => $this->description,
             'amount' => $this->amount,
-            'type' => $this->type
+            'type' => $this->type,
+            'photo' => $this->photo ?? $this->expense->photo
         ]);
         session()->flash('message', 'Registro atualizado com sucesso!');
     }

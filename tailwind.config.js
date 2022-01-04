@@ -16,5 +16,13 @@ module.exports = {
         },
     },
 
+    module.exports = {
+
+        plugins: [
+            require('@themesberg/flowbite/plugin')
+        ]
+
+    },
+
     plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
 };
